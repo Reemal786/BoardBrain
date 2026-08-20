@@ -1,106 +1,139 @@
-# 🎲 RulesBot
+# 🎲 BoardBrain — AI Board Game Rules Assistant
 
-> A board game rules assistant — because "just read the rulebook" isn't always helpful at 11pm on game night.
+**BoardBrain** is an AI-powered board game assistant that answers natural language questions about game rules using **Retrieval-Augmented Generation (RAG)**.
 
-RulesBot answers natural language questions about board game rules using a RAG (Retrieval-Augmented Generation) pipeline. Ask it anything: it retrieves relevant rule passages and generates an answer grounded in the actual text.
+Instead of searching through an entire rulebook during game night, users can ask BoardBrain a question and receive an answer grounded in the official rule documents.
 
-**This is a starter repo.** The UI and infrastructure are built. The retrieval and generation pipeline is yours to implement.
+> Because "just read the rulebook" isn't always helpful at 11 PM on game night.
 
----
+## 🎯 Purpose
 
-## Getting Started
+Board game rulebooks can be lengthy and difficult to search when players need an answer to one specific question.
 
-### 1. Fork and clone
+RulesBot explores how **Retrieval-Augmented Generation and semantic search** can make those documents easier to navigate. Instead of manually searching through pages of rules, players can ask a question and retrieve information relevant to the situation.
 
-Fork this repo, then clone your fork locally.
+The project also demonstrates the core components of a RAG system: **document chunking, embeddings, vector storage, semantic retrieval, context construction, and LLM-based response generation**.
 
-### 2. Create a virtual environment
+## ✨ Features
 
-```bash
-python -m venv .venv
-source .venv/bin/activate      # Mac/Linux
-# or: .venv\Scripts\activate   # Windows
+* **Natural Language Q&A** — Ask questions about board game rules conversationally
+* **Semantic Search** — Finds relevant rule passages based on meaning rather than exact keyword matches
+* **RAG Pipeline** — Retrieves relevant context before generating an answer
+* **Vector Search** — Stores and searches document embeddings using ChromaDB
+* **Grounded Responses** — Generates answers using retrieved rulebook content
+* **Multiple Games** — Search rules across several popular board games
+* **Interactive Interface** — Simple Gradio interface for asking questions
+
+## 🎮 Supported Games
+
+| Game           | Rulebook             |
+| -------------- | -------------------- |
+| Catan          | `catan.txt`          |
+| Clue           | `clue.txt`           |
+| Codenames      | `codenames.txt`      |
+| Monopoly       | `monopoly.txt`       |
+| Pandemic       | `pandemic.txt`       |
+| Risk           | `risk.txt`           |
+| Ticket to Ride | `ticket_to_ride.txt` |
+| Uno            | `uno.txt`            |
+
+## 🧠 How It Works
+
+BaordBrain uses a RAG pipeline to retrieve information from board game rulebooks before generating an answer.
+
+```text
+             Board Game Rulebooks
+                      │
+                      ▼
+              Document Chunking
+                      │
+                      ▼
+              Generate Embeddings
+                      │
+                      ▼
+                  ChromaDB
+                      │
+                      │
+User Question ────────┘
+      │
+      ▼
+Generate Query Embedding
+      │
+      ▼
+ Semantic Similarity Search
+      │
+      ▼
+ Relevant Rule Passages
+      │
+      ▼
+        LLM
+      │
+      ▼
+Grounded Rules Answer
 ```
 
-### 3. Install dependencies
+### 1. Document Ingestion
 
-```bash
-pip install -r requirements.txt
-```
+Board game rulebooks are loaded from the `docs/` directory and divided into smaller chunks that can be searched efficiently.
 
-> **Note:** `sentence-transformers` will download the embedding model (~80MB) on first run. This only happens once — it's cached locally afterward.
+### 2. Embeddings
 
-### 4. Add your Groq API key
+Each rulebook chunk is converted into a vector embedding using a **SentenceTransformer** model.
 
-```bash
-cp .env.example .env
-```
+These embeddings represent the semantic meaning of each passage rather than relying only on exact keyword matches.
 
-Open `.env` and replace `your_key_here` with your key from [console.groq.com](https://console.groq.com). No credit card required.
+### 3. Vector Storage
 
-### 5. Run the app
+The document embeddings and their associated text are stored in **ChromaDB** for efficient similarity search.
 
-```bash
-python app.py
-```
+### 4. Retrieval
 
-RulesBot will start and open in your browser. Before you implement the retrieval pipeline, it will load and display the UI but won't be able to answer questions.
+When a user asks a question, BoardBrain converts the query into an embedding and searches ChromaDB for the most semantically relevant passages from the rulebooks.
 
----
+### 5. Response Generation
 
-## Project Structure
+The retrieved passages are provided to the LLM as context along with the user's question.
 
-```
-ai201-lab1-rulesbot-starter/
-├── app.py              # Gradio UI and startup logic — fully built
-├── config.py           # Settings (models, paths, retrieval params) — fully built
-├── ingest.py           # Document loading + chunking — TODO: chunk_document()
-├── retriever.py        # Vector store + semantic search — TODO: embed_and_store(), retrieve()
-├── generator.py        # LLM response generation — TODO: generate_response()
-├── docs/               # Board game rule documents (pre-loaded)
-│   ├── catan.txt
-│   ├── clue.txt
-│   ├── codenames.txt
-│   ├── monopoly.txt
-│   ├── pandemic.txt
-│   ├── risk.txt
-│   ├── ticket_to_ride.txt
-│   └── uno.txt
-├── specs/              # Design documents — start here before writing any code
-│   ├── system-design.md         # Complete — read this first
-│   ├── chunk-document-spec.md   # Partial — you complete before Milestone 1
-│   ├── retrieve-spec.md         # Partial — you complete before Milestone 2
-│   └── generate-response-spec.md # Partial — you complete before Milestone 3
-└── planning.md         # Your observations and reflections — fill in as you go
-```
+The model then generates an answer based on the retrieved rule information rather than relying solely on its existing knowledge.
 
-## Where to Start
+## 🛠️ Tech Stack
 
-Before opening any `.py` file, read `specs/system-design.md`. It explains what's built, what's left for you, and why the technical decisions were made. Each milestone then begins by completing the corresponding spec file before writing code — that spec becomes the brief you hand to your AI tool when you're ready to implement.
+**Language**
 
----
+* Python
 
-## Re-ingesting After Changes
+**AI & Retrieval**
 
-ChromaDB persists to disk in `./chroma_db`. If you change your chunking strategy and want to re-ingest, delete that folder and restart the app:
+* Retrieval-Augmented Generation (RAG)
+* SentenceTransformers
+* Vector Embeddings
+* Semantic Search
+* LLMs
 
-```bash
-rm -rf chroma_db/   # Mac/Linux
-# or: rmdir /s chroma_db   # Windows
-python app.py
-```
+**Database**
 
----
+* ChromaDB
 
-## Rule Books Included
+**LLM API**
 
-| Game | File |
-|------|------|
-| Catan | `docs/catan.txt` |
-| Clue | `docs/clue.txt` |
-| Codenames | `docs/codenames.txt` |
-| Monopoly | `docs/monopoly.txt` |
-| Pandemic | `docs/pandemic.txt` |
-| Risk | `docs/risk.txt` |
-| Ticket to Ride | `docs/ticket_to_ride.txt` |
-| Uno | `docs/uno.txt` |
+* Groq
+
+**Interface**
+
+* Gradio
+
+## 🔮 Future Improvements
+
+* Allow users to upload their own rulebooks
+* Support PDF rulebooks
+* Add citations to specific rulebook sections
+* Filter questions by individual game
+* Add conversation history for follow-up questions
+* Expand the collection of supported games
+* Improve retrieval evaluation and relevance scoring
+* Add support for comparing rules across different games
+
+## 👩‍💻 Author
+
+**Reemal Hoor**
+Computer Engineering
